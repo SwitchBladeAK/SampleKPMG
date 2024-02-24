@@ -3,18 +3,15 @@ import { RiArrowDropDownLine } from "react-icons/ri";
 import KPMGContext from "../../context/SampleContext";
 
 const SearchBar = ({
-  advancedFilterState,
-  setAdvancedFilterState,
+  tempAdvancedFilterState,
   handleSearch,
-  initialAdvancedFilterState,
   updateOperator,
   operatorOptions,
   updateValue,
   clearAdvancedFilter,
   searchFilter,
+  handleAdvancedFilter,
 }) => {
-  const { columns, setColumns } = useContext(KPMGContext);
-
   const [advancedModal, setAdvancedModal] = useState(false);
 
   const toggleAdvancedModal = () => {
@@ -35,18 +32,18 @@ const SearchBar = ({
         >
           Search
         </label>
-        <div className="w-[300px] relative border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <div className="w-[235px] relative border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
           <input
             type="search"
             id="default-search"
-            className="block w-[250px] p-4 ps-10 text-sm text-gray-900 border border-none rounded-l-lg"
-            placeholder="Type Desired Keyword"
+            className="block w-[200px] p-2 ps-10 text-sm text-gray-900 border border-none rounded-l-lg"
+            placeholder="Search keyword"
             required=""
             value={searchFilter}
             onChange={(e) => handleSearch(e)}
           />
 
-          <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+          <div className="absolute inset-y-0 start-0 flex items-center ps-2 pointer-events-none">
             <svg
               className="w-4 h-4 text-gray-500 dark:text-gray-400 cursor-pointer"
               aria-hidden="true"
@@ -65,7 +62,7 @@ const SearchBar = ({
           </div>
 
           <div
-            className="absolute inset-y-0 right-0 flex items-center p-3"
+            className="absolute inset-y-0 right-0 flex items-center p-1"
             onClick={toggleAdvancedModal}
             style={{ cursor: "pointer" }}
           >
@@ -132,53 +129,53 @@ const SearchBar = ({
               </tr>
             </thead>
             <tbody>
-              {columns
-                ?.filter((col) => {
-                  return col !== "Actions";
-                })
-                .map((data, index) => {
-                  return (
-                    <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                      <th
-                        scope="row"
-                        className={`w-[30%] flex-none px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white `}
+              {tempAdvancedFilterState.map(
+                ({ col: columnName, value, operator }, index) => (
+                  <tr
+                    key={index}
+                    className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+                  >
+                    <th
+                      scope="row"
+                      className={`w-[30%] flex-none px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white `}
+                    >
+                      {columnName}
+                    </th>
+                    <td className={`w-[300px] flex-grow px-6 py-4 `}>
+                      <select
+                        className="block w-[100%] p-4 text-sm border rounded-lg text-black focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        onChange={(e) =>
+                          updateOperator(columnName, e.target.value)
+                        }
+                        value={operator || ""}
                       >
-                        {data}
-                      </th>
-                      <td className={`w-[300px] flex-grow px-6 py-4 `}>
-                        <select
-                          className="block w-[100%] p-4 text-sm border rounded-lg text-black focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                          onChange={(e) => updateOperator(data, e.target.value)}
-                          value={advancedFilterState[data]?.operator || ""}
-                        >
-                          <option value="">Select an operator</option>
-
-                          {operatorOptions.map((option) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className={` flex gap-3 px-6 py-4 `}>
-                        {advancedFilterState[data]?.operator?.includes(
-                          "empty"
-                        ) ? (
-                          <></>
-                        ) : (
-                          <input
-                            type="text"
-                            className="w-full px-4 py-3 border rounded-md"
-                            placeholder="Enter text"
-                            disabled={!advancedFilterState[data]?.operator}
-                            value={advancedFilterState[data]?.value || ""}
-                            onChange={(e) => updateValue(data, e.target.value)}
-                          />
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
+                        <option value="">Select an operator</option>
+                        {operatorOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className={`flex gap-3 px-6 py-4 `}>
+                      {operator?.includes("empty") ? (
+                        <></>
+                      ) : (
+                        <input
+                          type="text"
+                          className="w-full px-4 py-3 border rounded-md"
+                          placeholder="Enter text"
+                          disabled={!operator}
+                          value={value || ""}
+                          onChange={(e) =>
+                            updateValue(columnName, e.target.value)
+                          }
+                        />
+                      )}
+                    </td>
+                  </tr>
+                )
+              )}
             </tbody>
           </table>
 
@@ -187,7 +184,10 @@ const SearchBar = ({
             <button
               type="button"
               className="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-[#4856BE] text-white rounded-md hover:bg-blue-800"
-              onClick={toggleAdvancedModal}
+              onClick={() => {
+                handleAdvancedFilter();
+                toggleAdvancedModal();
+              }}
             >
               Search
             </button>
@@ -195,7 +195,10 @@ const SearchBar = ({
             <button
               type="button"
               className="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4856BE]"
-              onClick={clearAdvancedFilter}
+              onClick={() => {
+                clearAdvancedFilter();
+                toggleAdvancedModal();
+              }}
             >
               Clear
             </button>

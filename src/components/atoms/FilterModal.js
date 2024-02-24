@@ -1,19 +1,25 @@
-import React, { useContext } from "react";
+import React, { useState } from "react";
 import KPMGContext from "../../context/SampleContext";
 
-const FilterModal = ({ isOpen, onClose }) => {
-  const { columns, setColumns } = useContext(KPMGContext);
+const FilterModal = ({
+  isOpen,
+  onClose,
+  filteredColumns,
+  setFilteredColumns,
+}) => {
+  const handleChecked = (e) => {
+    setFilteredColumns((prevColumns) => {
+      const updatedColumns = prevColumns.map((column) => {
+        if (column.col === e.target.value) {
+          return { ...column, filtered: !column.filtered };
+        }
+        return column;
+      });
 
-  const handleChecked = (event) => {
-    const value = event.target.value;
-    if (event.target.checked) {
-      setColumns((prevSelected) => [...prevSelected, value]);
-    } else {
-      setColumns((prevSelected) =>
-        prevSelected.filter((items) => items !== value)
-      );
-    }
+      return updatedColumns;
+    });
   };
+
   return (
     <div
       className={`${
@@ -52,51 +58,23 @@ const FilterModal = ({ isOpen, onClose }) => {
 
           {/* Modal body */}
           <div className="flex justify-evenly p-6">
-            <div>
-              <input
-                type="checkbox"
-                value="Lookup Type Name"
-                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                checked={columns.includes("Lookup Type Name")}
-                onChange={handleChecked}
-              />
-              <label
-                for="default-checkbox"
-                class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-              >
-                Lookup Type Name
-              </label>
-            </div>
-            <div>
-              <input
-                type="checkbox"
-                value="Display Name"
-                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                checked={columns.includes("Display Name")}
-                onChange={handleChecked}
-              />
-              <label
-                for="default-checkbox"
-                class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-              >
-                Display Name
-              </label>
-            </div>
-            <div>
-              <input
-                type="checkbox"
-                value="Actions"
-                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                checked={columns.includes("Actions")}
-                onChange={handleChecked}
-              />
-              <label
-                for="default-checkbox"
-                class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-              >
-                Actions
-              </label>
-            </div>
+            {filteredColumns.map((column) => (
+              <div>
+                <input
+                  type="checkbox"
+                  value={column.col}
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={handleChecked}
+                  checked={!column.filtered}
+                />
+                <label
+                  for="default-checkbox"
+                  class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                >
+                  {column.col}
+                </label>
+              </div>
+            ))}
           </div>
 
           {/* Modal footer */}

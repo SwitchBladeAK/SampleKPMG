@@ -1,11 +1,12 @@
 // DeleteModal.js
-import React from "react";
+import React, { useContext } from "react";
+import KPMGContext from "../../context/SampleContext";
 
 const DeleteModal = ({ isOpen, onClose, onDelete, itemName }) => {
+  const { pageLabels, setPageLabels } = useContext(KPMGContext);
+
   const handleDelete = () => {
-    // Implement delete logic here
     onDelete();
-    // Close the modal after deletion
     onClose();
   };
 
@@ -42,7 +43,7 @@ const DeleteModal = ({ isOpen, onClose, onDelete, itemName }) => {
           {/* Modal header */}
           <div className="bg-[#4856BEF5] px-4 py-3 sm:px-6">
             <h3 className="text-lg font-medium text-white" id="modal-headline">
-              Delete Lookup Type
+              {`Delete ${pageLabels.name}`}
             </h3>
           </div>
 
@@ -51,8 +52,8 @@ const DeleteModal = ({ isOpen, onClose, onDelete, itemName }) => {
             {/* Body content */}
             <div className="mb-4">
               <p className="text-sm text-gray-500">
-                Are you sure you want to delete the Lookup Type: {" "}
-                <span className="font-bold">{itemName}</span>?
+                {`Are you sure you want to delete the ${itemName[0]?.columnName} : `}
+                <span className="font-bold">{itemName[0]?.columnValue}</span>?
               </p>
             </div>
           </div>
